@@ -24,6 +24,22 @@ TEST(PolynomialTest, Subtract) {
     ASSERT_EQ(r, intpoly({-2, -2}));
 }
 
+TEST(PolynomialTest, MultiplyMod) {
+    modpoly p({1, 2, 5});
+    modpoly q({3, 4, 5});
+    modpoly r = p * q;
+
+    ASSERT_EQ(r, modpoly({3, 10, 28, 30, 25}));
+}
+
+TEST(PolynomialTest, MultiplyInt) {
+    intpoly p({1, 2, 5});
+    intpoly q({3, 4, 5});
+    intpoly r = p * q;
+
+    ASSERT_EQ(r, intpoly({3, 10, 28, 30, 25}));
+}
+
 TEST(PolynomialTest, Substitute) {
     intpoly p({1, 2, 5});
 

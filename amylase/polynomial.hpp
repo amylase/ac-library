@@ -15,7 +15,7 @@ struct polynomial {
 
     // add
     polynomial<T>& operator+=(const polynomial<T>& other) {
-        while (coef.size() < coef.size()) {
+        while (coef.size() < other.coef.size()) {
             coef.push_back(0);
         }
         for (unsigned int d = 0; d < coef.size(); ++d) {
@@ -31,7 +31,7 @@ struct polynomial {
 
     // subtract
     polynomial<T>& operator-=(const polynomial<T>& other) {
-        while (coef.size() < coef.size()) {
+        while (coef.size() < other.coef.size()) {
             coef.push_back(0);
         }
         for (unsigned int d = 0; d < coef.size(); ++d) {

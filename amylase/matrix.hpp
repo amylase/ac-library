@@ -84,7 +84,7 @@ struct matrix {
     matrix<T>& operator*=(const T other) {
         for (unsigned int i = 0; i < rows(); ++i) {
             for (unsigned int j = 0; j < cols(); ++j) {
-                elem[i][j] += other;
+                elem[i][j] *= other;
             }
         }
         return *this;

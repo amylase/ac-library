@@ -61,6 +61,35 @@ struct polynomial {
         return v;
     }
 
+    // multiply
+    template <class mint, atcoder::internal::is_static_modint_t<mint>* = nullptr>
+    polynomial<mint>& operator*=(const polynomial<mint>& q) {
+        std::vector<mint> result = atcoder::convolution(coef, q.coef);
+        coef = result;
+        normalize();
+        return *this;
+    }
+
+    polynomial<long long>& operator*=(const polynomial<long long>& q) {
+        std::vector<long long> result = atcoder::convolution_ll(coef, q.coef);
+        coef = result;
+        normalize();
+        return *this;
+    }
+
+    polynomial<int>& operator*=(const polynomial<int>& q) {
+        std::vector<long long> p_coef(coef.begin(), coef.end());
+        std::vector<long long> q_coef(q.coef.begin(), q.coef.end());
+        std::vector<long long> result = atcoder::convolution_ll(p_coef, q_coef);
+        coef = std::vector<int>(result.begin(), result.end());
+        normalize();
+        return *this;
+    }
+
+    polynomial<T> operator*(const polynomial<T>& q) {
+        return polynomial<T>(*this) *= q;
+    }
+
     unsigned int degree() {
         return coef.size() + 1;
     }
@@ -88,36 +117,6 @@ template <class T>
 bool operator==(const polynomial<T>& p, const polynomial<T>& q) {
     return p.coef == q.coef;
 }
-
-template <class mint, atcoder::internal::is_static_modint_t<mint>* = nullptr>
-polynomial<mint>& operator*=(polynomial<mint>&& p, const polynomial<mint>& q) {
-    std::vector<mint> result = atcoder::convolution(p.coef, q.coef);
-    p.coef = result;
-    p.normalize();
-    return p;
-}
-
-polynomial<long long>& operator*=(polynomial<long long>&& p, const polynomial<long long>& q) {
-    std::vector<long long> result = atcoder::convolution_ll(p.coef, q.coef);
-    p.coef = result;
-    p.normalize();
-    return p;
-}
-
-polynomial<int>& operator*=(polynomial<int>&& p, const polynomial<int>& q) {
-    std::vector<long long> p_coef(p.coef.begin(), p.coef.end());
-    std::vector<long long> q_coef(q.coef.begin(), q.coef.end());
-    std::vector<long long> result = atcoder::convolution_ll(p_coef, q_coef);
-    p.coef = std::vector<int>(result.begin(), result.end());
-    p.normalize();
-    return p;
-}
-
-template <class T>
-polynomial<T>& operator*(const polynomial<T>& p, const polynomial<T>& q) {
-    return polynomial<T>(p) *= q;
-}
-
 
 }  // namespace amylase
 

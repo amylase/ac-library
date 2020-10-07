@@ -62,7 +62,7 @@ struct polynomial {
     }
 
     // multiply
-    template <class mint, atcoder::internal::is_static_modint_t<mint>* = nullptr>
+    template <class mint = T, atcoder::internal::is_static_modint_t<mint>* = nullptr>
     polynomial<mint>& operator*=(const polynomial<mint>& q) {
         std::vector<mint> result = atcoder::convolution(coef, q.coef);
         coef = result;

@@ -113,7 +113,7 @@ TEST(PolynomialTest, ModInt) {
     const modpoly q({3, 4});
     const modpoly r = p - q;
 
-    ASSERT_EQ(r, modpoly({1000000005, 1000000005}));
+    ASSERT_EQ(r, modpoly({-2, -2}));
 }
 
 TEST(PolynomialTest, Float) {

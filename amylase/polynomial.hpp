@@ -12,22 +12,24 @@ struct polynomial {
     std::vector<T> coef;
 
     polynomial(): coef() {}
-    polynomial(const T x): coef(1, x) {}
-    explicit polynomial(const std::vector<T>& _coef): coef(_coef) {}
+    explicit polynomial(const T x): coef(1, x) {}
+    explicit polynomial(const std::vector<T>& _coef): coef(_coef) {
+        normalize();
+    }
 
     // add
     polynomial<T>& operator+=(const polynomial<T>& other) {
         while (coef.size() < other.coef.size()) {
             coef.push_back(0);
         }
-        for (unsigned int d = 0; d < coef.size(); ++d) {
+        for (unsigned int d = 0; d < other.coef.size(); ++d) {
             coef[d] += other.coef[d];
         }
         normalize();
         return *this;
     }
 
-    polynomial<T> operator+(const polynomial<T>& q) {
+    polynomial<T> operator+(const polynomial<T>& q) const {
         return polynomial<T>(*this) += q;
     }
 
@@ -36,19 +38,19 @@ struct polynomial {
         while (coef.size() < other.coef.size()) {
             coef.push_back(0);
         }
-        for (unsigned int d = 0; d < coef.size(); ++d) {
+        for (unsigned int d = 0; d < other.coef.size(); ++d) {
             coef[d] -= other.coef[d];
         }
         normalize();
         return *this;
     }
 
-    polynomial<T> operator-(const polynomial<T>& q) {
+    polynomial<T> operator-(const polynomial<T>& q) const {
         return polynomial<T>(*this) -= q;
     }
 
     // substitute
-    T substitute(const T x) {
+    T substitute(const T x) const {
         if (coef.size() == 0) {
             return 0;
         }
@@ -64,6 +66,7 @@ struct polynomial {
     // multiply
     template <class mint = T, atcoder::internal::is_static_modint_t<mint>* = nullptr>
     polynomial<mint>& operator*=(const polynomial<mint>& q) {
+        static_assert(mint::mod() != 1000000007, "atcoder::convolution does not support mod 1000000007. use 998244353 instead.");
         std::vector<mint> result = atcoder::convolution(coef, q.coef);
         coef = result;
         normalize();
@@ -86,15 +89,75 @@ struct polynomial {
         return *this;
     }
 
-    polynomial<T> operator*(const polynomial<T>& q) {
+    polynomial<T> operator*(const polynomial<T>& q) const {
         return polynomial<T>(*this) *= q;
     }
 
-    unsigned int degree() {
-        return coef.size() + 1;
+    // divide
+    polynomial<T> star() const {
+        std::vector<T> new_coef(coef.rbegin(), coef.rend());
+        return polynomial(new_coef);
     }
 
-    polynomial<T> derivative() {
+    polynomial<T>& operator/=(const polynomial<T>& g) {
+        // http://www.math.kobe-u.ac.jp/Asir/ca.pdf pp.29
+
+        const int q_degree = (int) degree() - g.degree();
+        if (q_degree < 0) {
+            coef.clear();
+            return *this;
+        }
+
+        if (g.degree() < 50 || q_degree < 50) {
+            std::vector<T> new_coef(q_degree + 1);
+            for (int d = (int) q_degree; d >= 0; --d) {
+                const T c = coef[d + g.degree()] / g.coef.back();
+                new_coef[d] = c;
+                for (unsigned int i = 0; i < g.degree(); ++i) {
+                    coef[d + i] -= c * g.coef[i];
+                }
+            }
+            coef = new_coef;
+            return *this;
+        }
+
+        const polynomial<T> gstar = g.star();
+        polynomial<T> t(std::vector<T>(1, 1 / gstar.coef[0]));
+        while ((int) t.coef.size() < q_degree + 1) {
+            const int next_t_size = (int) t.coef.size() * 2;
+            t = t * polynomial<T>(2) - t * t * gstar;
+            t.coef.resize(next_t_size);
+        }
+
+        auto qstar = t * this->star();
+        qstar.coef.resize(q_degree + 1);
+        coef = qstar.star().coef;
+        return *this;
+    }
+
+    polynomial<T> operator/(const polynomial<T>& g) const {
+        return polynomial<T>(*this) /= g;
+    }
+
+    polynomial<T>& operator%=(const polynomial<T>& g) {
+        auto q = (*this) / g;
+        coef = ((*this) - q * g).coef;
+        return *this;
+    }
+
+    polynomial<T> operator%(const polynomial<T>& g) const {
+        return polynomial<T>(*this) %= g;
+    }
+
+    unsigned int degree() const {
+        if (coef.size() > 0) {
+            return (int) coef.size() - 1;
+        } else {
+            return 0;
+        }
+    }
+
+    polynomial<T> derivative() const {
         if (coef.size() == 0) {
             return polynomial<T>();
         }
@@ -112,6 +175,8 @@ struct polynomial {
         return *this;
     }
 };
+
+using mod_polynomial = polynomial<atcoder::modint998244353>;
 
 template <class T>
 bool operator==(const polynomial<T>& p, const polynomial<T>& q) {

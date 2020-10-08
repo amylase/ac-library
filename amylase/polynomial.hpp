@@ -165,6 +165,7 @@ struct polynomial {
         for (unsigned int i = 0; i < new_coef.size(); ++i) {
             new_coef[i] = coef[i + 1] * (i + 1);
         }
+        normalize();
         return polynomial<T>(new_coef);
     }
 

@@ -63,11 +63,22 @@ struct polynomial {
         return v;
     }
 
-    // multiply
-    template <class mint = T, atcoder::internal::is_static_modint_t<mint>* = nullptr>
+    // multiply (general case)
+    polynomial<T> multiply_slow(const polynomial<T>& q) const {
+        // todo: implement Karatsuba's algorithm.
+        std::vector<T> new_coef(degree() + q.degree() + 1);
+        for (unsigned int i = 0; i < coef.size(); ++i) {
+            for (unsigned int j = 0; j < q.coef.size(); ++j) {
+                new_coef[i + j] += coef[i] * q.coef[j];
+            }
+        }
+        return polynomial<T>(new_coef);
+    }
+
+    // multiply (special case)
+    template <class mint = T, atcoder::internal::is_static_modint_t<mint>* = nullptr, std::enable_if_t<mint::mod() == 998244353>* = nullptr>
     polynomial<mint>& operator*=(const polynomial<mint>& q) {
-        static_assert(mint::mod() != 1000000007, "atcoder::convolution does not support mod 1000000007. use 998244353 instead.");
-        std::vector<mint> result = atcoder::convolution(coef, q.coef);
+        std::vector<T> result = atcoder::convolution(coef, q.coef);
         coef = result;
         normalize();
         return *this;
@@ -93,7 +104,26 @@ struct polynomial {
         return polynomial<T>(*this) *= q;
     }
 
-    // divide
+    // divide (general case)
+    polynomial<T> divide_slow(const polynomial<T>& g) const {
+        const int q_degree = (int) degree() - g.degree();
+
+        if (q_degree < 0) {
+            return polynomial<T>();
+        }
+
+        std::vector<T> q(q_degree + 1), r = coef;
+        for (int d = (int) q_degree; d >= 0; --d) {
+            const T c = r[d + g.degree()] / g.coef.back();
+            q[d] = c;
+            for (unsigned int i = 0; i < g.degree(); ++i) {
+                r[d + i] -= c * g.coef[i];
+            }
+        }
+        return polynomial<T>(q);
+    }
+
+    // divide (special case)
     polynomial<T> star() const {
         std::vector<T> new_coef(coef.rbegin(), coef.rend());
         return polynomial(new_coef);
@@ -109,15 +139,7 @@ struct polynomial {
         }
 
         if (g.degree() < 50 || q_degree < 50) {
-            std::vector<T> new_coef(q_degree + 1);
-            for (int d = (int) q_degree; d >= 0; --d) {
-                const T c = coef[d + g.degree()] / g.coef.back();
-                new_coef[d] = c;
-                for (unsigned int i = 0; i < g.degree(); ++i) {
-                    coef[d + i] -= c * g.coef[i];
-                }
-            }
-            coef = new_coef;
+            coef = divide_slow(g).coef;
             return *this;
         }
 
@@ -168,6 +190,15 @@ struct polynomial {
         return polynomial<T>(new_coef);
     }
 
+    polynomial<T> integral() const {
+        static_assert(!std::is_integral<T>::value, "polynomial() is not defined for integer coefficients.");
+        std::vector<T> new_coef(coef.size() + 1);
+        for (unsigned int i = 0; i < coef.size(); ++i) {
+            new_coef[i + 1] = coef[i] / (i + 1);
+        }
+        return polynomial<T>(new_coef);
+    }
+
     polynomial<T>& normalize() {
         while (!coef.empty() && coef.back() == 0) {
             coef.pop_back();
@@ -176,12 +207,13 @@ struct polynomial {
     }
 };
 
-using mod_polynomial = polynomial<atcoder::modint998244353>;
-
+// equality
 template <class T>
 bool operator==(const polynomial<T>& p, const polynomial<T>& q) {
     return p.coef == q.coef;
 }
+
+using mod_polynomial = polynomial<atcoder::modint998244353>;
 
 }  // namespace amylase
 

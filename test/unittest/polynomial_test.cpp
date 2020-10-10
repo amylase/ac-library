@@ -80,9 +80,7 @@ TEST(PolynomialTest, Divide) {
     const auto test = [](const int p_deg, const int q_deg) {
       const modpoly p = testcase(p_deg);
       const modpoly q = testcase(q_deg);
-      const modpoly x = p / q;
-      const modpoly y = p % q;
-      ASSERT_EQ(p, x * q + y);
+      ASSERT_EQ(p / q, p.divide_slow(q));
     };
 
     for (int p_deg = 0; p_deg < 100; ++p_deg) {
@@ -106,6 +104,17 @@ TEST(PolynomialTest, Derivative) {
     const intpoly p({1, 2, 5});
 
     ASSERT_EQ(p.derivative(), intpoly({2, 10}));
+}
+
+TEST(PolynomialTest, Integral) {
+    const modpoly p({1, 2, 3});
+
+    ASSERT_EQ(p.integral(), modpoly({0, 1, 1, 1}));
+
+    for (int i = 0; i < 100; ++i) {
+        const modpoly pp = testcase(i);
+        ASSERT_EQ(pp, pp.integral().derivative());
+    }
 }
 
 TEST(PolynomialTest, ModInt) {

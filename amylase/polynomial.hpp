@@ -18,6 +18,14 @@ struct polynomial {
         normalize();
     }
 
+    T get(const unsigned int i) const {
+        if (i < coef.size()) {
+            return coef[i];
+        } else {
+            return 0;
+        }
+    }
+
     // add
     polynomial<T>& operator+=(const polynomial<T>& other) {
         while (coef.size() < other.coef.size()) {
@@ -67,18 +75,54 @@ struct polynomial {
     // multiply (general case)
     // implementation
     polynomial<T>& multiply_slow(const polynomial<T>& q) {
-        // todo: implement Karatsuba's algorithm.
         const unsigned int new_size = degree() + q.degree() + 1;
-        std::vector<T> p = coef;
-        coef.resize(new_size);
-        std::fill(coef.begin(), coef.end(), (T)0);
-        for (unsigned int i = 0; i < p.size(); ++i) {
-            for (unsigned int j = 0; j < q.coef.size(); ++j) {
-                coef[i + j] += p[i] * q.coef[j];
+        if (new_size < 100) {
+            std::vector<T> p = coef;
+            coef.resize(new_size);
+            std::fill(coef.begin(), coef.end(), (T)0);
+            for (unsigned int i = 0; i < p.size(); ++i) {
+                for (unsigned int j = 0; j < q.coef.size(); ++j) {
+                    coef[i + j] += p[i] * q.coef[j];
+                }
+            }
+            normalize();
+            return *this;
+        }
+
+        const int size = std::max(degree(), q.degree()) + 1;
+        const int first_size = size / 2;
+        const int second_size = size - first_size;
+        std::vector<T> my_first(first_size), my_second(second_size);
+        std::vector<T> op_first(first_size), op_second(second_size);
+        for (int deg = 0; deg < size; ++deg) {
+            if (deg < first_size) {
+                my_first[deg] = get(deg);
+                op_first[deg] = q.get(deg);
+            } else {
+                my_second[deg - first_size] = get(deg);
+                op_second[deg - first_size] = q.get(deg);
             }
         }
-        normalize();
+
+        const polynomial<T> my_0(my_first), my_1(my_second), op_0(op_first),
+            op_1(op_second);
+
+        auto prod_0 = my_0 * op_0;
+        auto prod_2 = my_1 * op_1;
+        auto prod_1 = prod_0 + prod_2 - (my_1 - my_0) * (op_1 - op_0);
+
+        auto prod =
+            prod_2.shift(2 * first_size) + prod_1.shift(first_size) + prod_0;
+        coef = prod.coef;
         return *this;
+    }
+
+    polynomial<T> shift(const unsigned int n) const {
+        std::vector<T> new_coef(n, 0);
+        for (unsigned int i = 0; i < coef.size(); ++i) {
+            new_coef.push_back(coef[i]);
+        }
+        return polynomial<T>(new_coef);
     }
 
     // 1. non convolutional static_modint

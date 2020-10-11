@@ -6,16 +6,18 @@ using li = long long;
 using mint = atcoder::modint998244353;
 using intpoly = amylase::polynomial<li>;
 using modpoly = amylase::polynomial<mint>;
+using modpoly2 = amylase::polynomial<atcoder::modint1000000007>;
 using floatpoly = amylase::polynomial<double>;
 
-modpoly multiply_naive(const modpoly& p, const modpoly& q) {
-    std::vector<mint> coef(p.degree() + q.degree() + 1);
+template <class T>
+amylase::polynomial<T> multiply_naive(const amylase::polynomial<T>& p, const amylase::polynomial<T>& q) {
+    std::vector<T> coef(p.degree() + q.degree() + 1);
     for (unsigned int i = 0; i < p.coef.size(); ++i) {
         for (unsigned int j = 0; j < q.coef.size(); ++j) {
             coef[i + j] += p.coef[i] * q.coef[j];
         }
     }
-    return modpoly(coef);
+    return amylase::polynomial<T>(coef);
 }
 
 modpoly testcase(const unsigned int degree) {
@@ -67,6 +69,15 @@ TEST(PolynomialTest, MultiplyInt) {
     const intpoly r = p * q;
 
     ASSERT_EQ(r, intpoly({3, 10, 28, 30, 25}));
+}
+
+TEST(PolynomialTest, MultiplyKaratsuba) {
+    std::vector<atcoder::modint1000000007> pc;
+    for (int i = 0; i < 200; ++i) {
+        pc.emplace_back(i + 1);
+    }
+    modpoly2 p(pc);
+    ASSERT_EQ(p * p, multiply_naive(p, p));
 }
 
 TEST(PolynomialTest, MultiplyMany) {

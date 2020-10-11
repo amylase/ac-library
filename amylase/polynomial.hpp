@@ -76,7 +76,7 @@ struct polynomial {
     // implementation
     polynomial<T>& multiply_slow(const polynomial<T>& q) {
         const unsigned int new_size = degree() + q.degree() + 1;
-        if (new_size < 100) {
+        if (std::min(degree(), q.degree()) < 50) {
             std::vector<T> p = coef;
             coef.resize(new_size);
             std::fill(coef.begin(), coef.end(), (T)0);

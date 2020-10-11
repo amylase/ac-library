@@ -247,7 +247,7 @@ polynomial<T> multiply_many(std::vector<polynomial<T>> polys) {
         const int i = q.top().second; q.pop();
         const int j = q.top().second; q.pop();
         polys.emplace_back(polys[i]);
-        polys.back().multiply_slow(polys[j]);
+        polys.back() *= polys[j];
         q.emplace(polys.back().degree(), polys.size() - 1);
     }
     return polys[q.top().second];

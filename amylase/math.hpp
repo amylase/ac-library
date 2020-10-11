@@ -70,6 +70,25 @@ std::vector<long long> factor(long long x) {
     return factors;
 }
 
+/**
+ * solves ax + by = gcd(a, b)
+ * @param a
+ * @param b
+ * @param x ref to variable to store root x
+ * @param y ref to variable to store root x
+ * @return gcd(a, b)
+ */
+long long extgcd(long long a, long long b, long long& x, long long& y) {
+    long long d = a;
+    if (b != 0) {
+        d = extgcd(b, a % b, y, x);
+        y -= (a / b) * x;
+    } else {
+        x = 1; y = 0;
+    }
+    return d;
+}
+
 }  // namespace amylase
 
 #endif  // AMYLASE_MATH_HPP

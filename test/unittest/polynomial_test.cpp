@@ -69,6 +69,16 @@ TEST(PolynomialTest, MultiplyInt) {
     ASSERT_EQ(r, intpoly({3, 10, 28, 30, 25}));
 }
 
+TEST(PolynomialTest, MultiplyMany) {
+    modpoly naive(1);
+    std::vector<modpoly> polys;
+    for (int i = 1; i < 10; ++i) {
+        naive *= testcase(i);
+        polys.emplace_back(testcase(i));
+    }
+    ASSERT_EQ(naive, amylase::multiply_many(polys));
+}
+
 TEST(PolynomialTest, Divide) {
     const modpoly pp({0, 0, 0, 1});
     const modpoly qq({-1, 1});
@@ -78,9 +88,10 @@ TEST(PolynomialTest, Divide) {
     ASSERT_EQ(ss, modpoly(1));
 
     const auto test = [](const int p_deg, const int q_deg) {
-      const modpoly p = testcase(p_deg);
+      modpoly p = testcase(p_deg);
       const modpoly q = testcase(q_deg);
-      ASSERT_EQ(p / q, p.divide_slow(q));
+      const modpoly x = p / q;
+      ASSERT_EQ(x, p.divide_slow(q));
     };
 
     for (int p_deg = 0; p_deg < 100; ++p_deg) {

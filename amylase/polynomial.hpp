@@ -1,6 +1,7 @@
 #ifndef AMYLASE_POLYNOMIAL_HPP
 #define AMYLASE_POLYNOMIAL_HPP 1
 
+#include <queue>
 #include <vector>
 #include <atcoder/modint>
 #include <atcoder/convolution>
@@ -64,15 +65,32 @@ struct polynomial {
     }
 
     // multiply (general case)
-    polynomial<T> multiply_slow(const polynomial<T>& q) const {
+    // implementation
+    polynomial<T>& multiply_slow(const polynomial<T>& q) {
         // todo: implement Karatsuba's algorithm.
-        std::vector<T> new_coef(degree() + q.degree() + 1);
-        for (unsigned int i = 0; i < coef.size(); ++i) {
+        const unsigned int new_size = degree() + q.degree() + 1;
+        std::vector<T> p = coef;
+        coef.resize(new_size);
+        std::fill(coef.begin(), coef.end(), (T)0);
+        for (unsigned int i = 0; i < p.size(); ++i) {
             for (unsigned int j = 0; j < q.coef.size(); ++j) {
-                new_coef[i + j] += coef[i] * q.coef[j];
+                coef[i + j] += p[i] * q.coef[j];
             }
         }
-        return polynomial<T>(new_coef);
+        normalize();
+        return *this;
+    }
+
+    // 1. non convolutional static_modint
+    template <class mint = T, atcoder::internal::is_static_modint_t<mint>* = nullptr, std::enable_if_t<mint::mod() != 998244353>* = nullptr>
+    polynomial<T>& operator*=(const polynomial<T>& q) {
+        return multiply_slow(q);
+    }
+
+    // 2. other types
+    template <class U = T, std::enable_if_t<!std::is_integral<U>::value && !atcoder::internal::is_static_modint_t<U>::value>* = nullptr>
+    polynomial<U>& operator*=(const polynomial<U>& q) {
+        return multiply_slow(q);
     }
 
     // multiply (special case)
@@ -105,22 +123,26 @@ struct polynomial {
     }
 
     // divide (general case)
-    polynomial<T> divide_slow(const polynomial<T>& g) const {
+    polynomial<T>& divide_slow(const polynomial<T>& g) {
         const int q_degree = (int) degree() - g.degree();
 
         if (q_degree < 0) {
-            return polynomial<T>();
+            coef.clear();
+            return *this;
         }
 
-        std::vector<T> q(q_degree + 1), r = coef;
+        // r = coef
+        std::vector<T> q(q_degree + 1);
         for (int d = (int) q_degree; d >= 0; --d) {
-            const T c = r[d + g.degree()] / g.coef.back();
+            const T c = coef[d + g.degree()] / g.coef.back();
             q[d] = c;
             for (unsigned int i = 0; i < g.degree(); ++i) {
-                r[d + i] -= c * g.coef[i];
+                coef[d + i] -= c * g.coef[i];
             }
         }
-        return polynomial<T>(q);
+        coef = q;
+        normalize();
+        return *this;
     }
 
     // divide (special case)
@@ -139,8 +161,7 @@ struct polynomial {
         }
 
         if (g.degree() < 50 || q_degree < 50) {
-            coef = divide_slow(g).coef;
-            return *this;
+            return divide_slow(g);
         }
 
         const polynomial<T> gstar = g.star();
@@ -213,8 +234,24 @@ bool operator==(const polynomial<T>& p, const polynomial<T>& q) {
     return p.coef == q.coef;
 }
 
-using mod_polynomial = polynomial<atcoder::modint998244353>;
-
+template <class T>
+polynomial<T> multiply_many(std::vector<polynomial<T>> polys) {
+    std::priority_queue<std::pair<int, int>, std::vector<std::pair<int, int>>, std::greater<>> q;
+    for (unsigned int i = 0; i < polys.size(); ++i) {
+        q.emplace(polys[i].degree(), i);
+    }
+    if (q.size() == 0) {
+        return polynomial<T>(1);
+    }
+    while (q.size() > 1) {
+        const int i = q.top().second; q.pop();
+        const int j = q.top().second; q.pop();
+        polys.emplace_back(polys[i]);
+        polys.back().multiply_slow(polys[j]);
+        q.emplace(polys.back().degree(), polys.size() - 1);
+    }
+    return polys[q.top().second];
+}
 }  // namespace amylase
 
 #endif  // AMYLASE_POLYNOMIAL_HPP

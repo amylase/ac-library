@@ -284,15 +284,14 @@ polynomial<T> multiply_many(std::vector<polynomial<T>> polys) {
     for (unsigned int i = 0; i < polys.size(); ++i) {
         q.emplace(polys[i].degree(), i);
     }
-    if (q.size() == 0) {
+    if (q.empty()) {
         return polynomial<T>(1);
     }
     while (q.size() > 1) {
         const int i = q.top().second; q.pop();
         const int j = q.top().second; q.pop();
-        polys.emplace_back(polys[i]);
-        polys.back() *= polys[j];
-        q.emplace(polys.back().degree(), polys.size() - 1);
+        polys[i] *= polys[j];
+        q.emplace(polys[i].degree(), i);
     }
     return polys[q.top().second];
 }

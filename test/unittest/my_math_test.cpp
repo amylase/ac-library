@@ -19,6 +19,23 @@ TEST(MyMathTest, IsPrime) {
         ASSERT_EQ(is_prime_naive(i), amylase::is_prime(i));
     }
     ASSERT_EQ(is_prime_naive(std::numeric_limits<int>::max()), amylase::is_prime(std::numeric_limits<int>::max()));
+    long long testcases[10] = {
+        4559258600391305197,
+        4870395676773890257,
+        5543343419754101539,
+        2696910492149275857,
+        8444122399798758311,
+        5538547194568284803,
+        5828352936117750187,
+        8921160186595818731,
+        3423153523301153381,
+        2110440756486307547
+    };
+    bool expected[10] = {true, true, true,  false, true,
+                         true, true, false, false, true};
+    for (int i = 0; i < 10; ++i) {
+        ASSERT_EQ(expected[i], amylase::is_prime(testcases[i]));
+    }
 }
 
 TEST(MyMathTest, Factor) {

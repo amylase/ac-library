@@ -5,16 +5,16 @@
 
 namespace amylase {
 
-using li = __int128_t;
-li _powmod(const li x, const li n, const li mod) {
+using bigint = __uint128_t;
+long long _powmod(const long long x, const long long n, const long long mod) {
     if (n == 0) {
         return 1;
     }
-    li sq = _powmod(x, n / 2, mod);
+    bigint sq = _powmod(x, n / 2, mod);
     if (n & 1) {
-        return sq * sq % mod * x % mod;
+        return (long long) (sq * sq % mod * x % mod);
     } else {
-        return sq * sq % mod;
+        return (long long) (sq * sq % mod);
     }
 }
 

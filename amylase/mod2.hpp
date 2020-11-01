@@ -18,7 +18,12 @@ struct mod2 : atcoder::internal::static_modint_base {
     mod2() : _v(0) {}
     template <class T, atcoder::internal::is_signed_int_t<T>* = nullptr>
     mod2(T v) {
-        unsigned long long x = abs(v);
+        unsigned long long x;
+        if (v >= 0) {
+            x = v;
+        } else {
+            x = -v;
+        }
         _v = (unsigned int)(x & 1u);
     }
     template <class T, atcoder::internal::is_unsigned_int_t<T>* = nullptr>

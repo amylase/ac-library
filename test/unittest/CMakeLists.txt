@@ -117,3 +117,11 @@ gtest_discover_tests(PolynomialTest)
 add_executable(MatrixTest matrix_test.cpp)
 target_link_libraries(MatrixTest gtest gtest_main)
 gtest_discover_tests(MatrixTest)
+
+add_executable(Mod2Test mod2_test.cpp)
+target_link_libraries(Mod2Test gtest gtest_main)
+gtest_discover_tests(Mod2Test)
+
+add_executable(CombinatoricsTest combinatorics_test.cpp)
+target_link_libraries(CombinatoricsTest gtest gtest_main)
+gtest_discover_tests(CombinatoricsTest)

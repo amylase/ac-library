@@ -26,6 +26,12 @@ namespace amylase {
     template<class T> using max_sum_segtree = atcoder::lazy_segtree<T, max<T>, std::numeric_limits<T>::lowest, T, add<T>, add<T>, zero<T>>;
     template<class T> using sum_sum_segtree = atcoder::lazy_segtree<T, add<T>, zero<T>, T, add<T>, add<T>, zero<T>>;
 
+    // NOTE: `sum_max_segtree` and `sum_min_segtree` is not available because straightforward approach does not work.
+    // You can implement these operations if the array is monotone (not necessarily strict). Sketch is as follows.
+    // Mapper is `overwrite`. You can determine which element should be overwritten when range-max is queried (Monotonicity is exploited here).
+    // Each element manages range_sum, range_max, size. Composition and Production are obvious by definitions.
+    // Example: https://codeforces.com/problemset/submission/1439/98821386
+
 }  // namespace amylase
 
 #endif  // AMYLASE_SEGTREES_HPP

@@ -65,20 +65,17 @@ struct rational {
         return *this;
     }
 
-    rational operator+(const rational other) const {
-        return rational(*this) += other;
+    friend rational operator+(const rational& lhs, const rational& rhs) {
+        return rational(lhs) += rational(rhs);
     }
-
-    rational operator-(const rational& other) const {
-        return rational(*this) -= other;
+    friend rational operator-(const rational& lhs, const rational& rhs) {
+        return rational(lhs) -= rational(rhs);
     }
-
-    rational operator*(const rational& other) {
-        return rational(*this) *= other;
+    friend rational operator*(const rational& lhs, const rational& rhs) {
+        return rational(lhs) *= rational(rhs);
     }
-
-    rational operator/(const rational& other) const {
-        return rational(*this) /= other;
+    friend rational operator/(const rational& lhs, const rational& rhs) {
+        return rational(lhs) /= rational(rhs);
     }
 
     rational& operator++() { return (*this) += 1; }

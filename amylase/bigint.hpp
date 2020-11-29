@@ -157,24 +157,20 @@ struct bigint {
         return (*this) -= ((*this) / other) * other;
     }
 
-    bigint operator+(const bigint& other) const {
-        return bigint(*this) += other;
+    friend bigint operator+(const bigint& lhs, const bigint& rhs) {
+        return bigint(lhs) += rhs;
     }
-
-    bigint operator-(const bigint& other) const {
-        return bigint(*this) -= other;
+    friend bigint operator-(const bigint& lhs, const bigint& rhs) {
+        return bigint(lhs) -= rhs;
     }
-
-    bigint operator*(const bigint& other) const {
-        return bigint(*this) *= other;
+    friend bigint operator*(const bigint& lhs, const bigint& rhs) {
+        return bigint(lhs) *= rhs;
     }
-
-    bigint operator/(const bigint& other) const {
-        return bigint(*this) /= other;
+    friend bigint operator/(const bigint& lhs, const bigint& rhs) {
+        return bigint(lhs) /= rhs;
     }
-
-    bigint operator%(const bigint& other) const {
-        return bigint(*this) %= other;
+    friend bigint operator%(const bigint& lhs, const bigint& rhs) {
+        return bigint(lhs) %= rhs;
     }
 
     bigint& operator++() { return (*this) += 1; }

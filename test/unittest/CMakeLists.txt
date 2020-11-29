@@ -125,3 +125,11 @@ gtest_discover_tests(Mod2Test)
 add_executable(CombinatoricsTest combinatorics_test.cpp)
 target_link_libraries(CombinatoricsTest gtest gtest_main)
 gtest_discover_tests(CombinatoricsTest)
+
+add_executable(BigintTest bigint_test.cpp)
+target_link_libraries(BigintTest gtest gtest_main)
+gtest_discover_tests(BigintTest)
+
+add_executable(RationalTest rational_test.cpp)
+target_link_libraries(RationalTest gtest gtest_main)
+gtest_discover_tests(RationalTest)

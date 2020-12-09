@@ -147,7 +147,7 @@ struct matrix {
     }
 
     // power
-    matrix<T> pow(const int n) const {
+    matrix<T> pow(const long long n) const {
         assert(rows() == cols());
         if (n == 0) {
             return ident(rows());
